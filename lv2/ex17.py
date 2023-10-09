@@ -10,10 +10,12 @@ min=2147000000
 
 for i, a in enumerate(arr):
     tmp=abs(a-avg)
+
     if tmp<min:
         min=tmp
         score=a
         idx=i+1
+        
     elif tmp==min:
         if a>score:
             score=a
