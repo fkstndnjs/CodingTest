@@ -2,17 +2,17 @@ import sys
 input_file_path = "/Users/ysh/Documents/Git Repository/CodingTest/lv2/input.txt"
 sys.stdin=open(input_file_path, "rt")
 
-n = int(input())
+s = input()
+res=0
 
-for i in range(n):
-    s=input()
-    s=s.upper()
-    size=len(s)
+for x in s:
+    if x.isdigit():
+        res=res*10+int(x)
 
-    for j in range(size//2):
-        if s[j]!=s[-1-j]:
-            print("#%d NO" %(i+1))
-            break
+cnt=0
 
-    else:
-        print("#%d YES" %(i+1))
+for i in range(1, res+1):
+    if res%i==0:
+        cnt+=1
+
+print(res, cnt)
