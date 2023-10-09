@@ -3,16 +3,16 @@ input_file_path = "/Users/ysh/Documents/Git Repository/CodingTest/lv2/input.txt"
 sys.stdin=open(input_file_path, "rt")
 
 n = int(input())
-a=list(map(int, input().split()))
 
-sum=0
-cnt=0
+for i in range(n):
+    s=input()
+    s=s.upper()
+    size=len(s)
 
-for x in a:
-    if x==1:
-        cnt+=1
-        sum+=cnt
+    for j in range(size//2):
+        if s[j]!=s[-1-j]:
+            print("#%d NO" %(i+1))
+            break
+
     else:
-        cnt=0
-
-print(sum)
+        print("#%d YES" %(i+1))
