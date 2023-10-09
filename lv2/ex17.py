@@ -2,23 +2,16 @@ import sys
 input_file_path = "/Users/ysh/Documents/Git Repository/CodingTest/lv2/input.txt"
 sys.stdin=open(input_file_path, "rt")
 
-n = int(input())
-arr=list(map(int, input().split()))
+n, m = map(int, input().split())
 
-avg=round(sum(arr)/n)
-min=2147000000
+list = [i for i in range(2, n+m+1)]
 
-for i, a in enumerate(arr):
-    tmp=abs(a-avg)
+dic = dict(zip(list, [0]*len(list)))
 
-    if tmp<min:
-        min=tmp
-        score=a
-        idx=i+1
-        
-    elif tmp==min:
-        if a>score:
-            score=a
-            idx=i+1
+for i in range(1, n+1):
+    for j in range(1, m+1):
+        dic[i+j]+=1
 
-print(avg, idx)
+newLi = [k for k, v in dic.items() if v==max(dic.values())]
+
+print(newLi)
