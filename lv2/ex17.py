@@ -2,16 +2,24 @@ import sys
 input_file_path = "/Users/ysh/Documents/Git Repository/CodingTest/lv2/input.txt"
 sys.stdin=open(input_file_path, "rt")
 
-n, m = map(int, input().split())
+n = int(input())
+a = list(map(int, input().split()))
 
-list = [i for i in range(2, n+m+1)]
+def digit_sum(x):
+    sum=0
 
-dic = dict(zip(list, [0]*len(list)))
+    while x>0:
+        sum+=x%10
+        x=x//10
+    
+    return sum
 
-for i in range(1, n+1):
-    for j in range(1, m+1):
-        dic[i+j]+=1
+max=-2147000000
 
-newLi = [k for k, v in dic.items() if v==max(dic.values())]
+for x in a:
+    tot=digit_sum(x)
+    if tot>max:
+        max=tot
+        res=x
 
-print(newLi)
+print(res)
