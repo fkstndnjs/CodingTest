@@ -3,24 +3,20 @@ input_file_path = "/Users/ysh/Documents/Git Repository/CodingTest/lv2/input.txt"
 sys.stdin=open(input_file_path, "rt")
 
 n=int(input())
-a=list(map(int, input().split()))
-m=int(input())
-b=list(map(int, input().split()))
+li = [list(map(int, input().split())) for _ in range(n)]
 
-p1=p2=0
-c=[]
+largest=0
 
-while p1<n and p2<m:
-    if a[p1]<=b[p2]:
-        c.append(a[p1])
-        p1+=1
-    else:
-        c.append(b[p2])
-        p2+=1
+for i in range(n):
+    sum1=sum2=sum3=sum4=0
 
-if p1<n:
-    c=c+a[p1:]
-else:
-    c=c+b[p2:]
+    for j in range(n):
+        sum1+=li[i][j]
+        sum2+=li[j][i]
+        
+    sum3+=li[i][i]
+    sum4+=li[i][n-i-1]
 
-print(c)
+    largest = max(largest, sum1, sum2, sum3, sum4)
+
+print(largest)
