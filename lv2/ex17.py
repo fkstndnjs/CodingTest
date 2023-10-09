@@ -13,10 +13,10 @@ for i, a in enumerate(arr):
     if tmp<min:
         min=tmp
         score=a
-        res=i+1
+        idx=i+1
     elif tmp==min:
         if a>score:
             score=a
-            res=i+1
+            idx=i+1
 
-print(avg, res)
+print(avg, idx)
