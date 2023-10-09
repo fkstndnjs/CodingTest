@@ -2,17 +2,25 @@ import sys
 input_file_path = "/Users/ysh/Documents/Git Repository/CodingTest/lv2/input.txt"
 sys.stdin=open(input_file_path, "rt")
 
-s = input()
-res=0
+n=int(input())
+a=list(map(int, input().split()))
+m=int(input())
+b=list(map(int, input().split()))
 
-for x in s:
-    if x.isdigit():
-        res=res*10+int(x)
+p1=p2=0
+c=[]
 
-cnt=0
+while p1<n and p2<m:
+    if a[p1]<=b[p2]:
+        c.append(a[p1])
+        p1+=1
+    else:
+        c.append(b[p2])
+        p2+=1
 
-for i in range(1, res+1):
-    if res%i==0:
-        cnt+=1
+if p1<n:
+    c=c+a[p1:]
+else:
+    c=c+b[p2:]
 
-print(res, cnt)
+print(c)
