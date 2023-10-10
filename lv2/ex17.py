@@ -1,22 +1,21 @@
 import sys
 input_file_path = "/Users/ysh/Documents/Git Repository/CodingTest/lv2/input.txt"
 sys.stdin=open(input_file_path, "rt")
-
+dx=[-1, 0, 1, 0]
+dy=[0,1,0,-1]
 n=int(input())
 li = [list(map(int, input().split())) for _ in range(n)]
+li.insert(0, [0]*n)
+li.append([0]*n)
+for l in li:
+    l.insert(0, 0)
+    l.append(0)
 
-res=0
-s=e=n//2
+cnt=0
 
-for i in range(n):
-    for j in range(s, e+1):
-        res+=li[i][j]
+for i in range(1, n+1):
+    for j in range(1, n+1):
+        if all(li[i][j] > li[i+dx[k]][j+dy[k]] for k in range(4)):
+            cnt+=1
 
-    if i<n//2:
-        s-=1
-        e+=1
-    else:
-        s+=1
-        e-=1
-
-print(res)
+print(cnt)
