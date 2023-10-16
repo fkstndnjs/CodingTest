@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example_11</title>
+  </head>
+  <body>
+    <div id="parentNode">
+      <p>첫 번째 단락 입니다.</p>
+      <p>두 번째 단락 입니다.</p>
+    </div>
+
+    <script>
+      var parentNode = document.getElementById("parentNode");
+      var lastNode = parentNode.lastChild;
+
+      // 부모 노드의 자식 노드 개수 출력
+      document.writeln("# of Child Nodes: " + parentNode.childNodes.length);
+
+      // 마지막 자식 노드의 이름 출력
+      document.writeln("Last Child Node Name: " + lastNode.nodeName);
+
+      // 마지막 엘리먼트 노드 찾기
+      while (lastNode.nodeType != 1) {
+        lastNode = lastNode.previousSibling;
+      }
+
+      // 마지막 엘리먼트 노드의 이름 출력
+      document.writeln("Last Element Node Name: " + lastNode.nodeName);
+    </script>
+  </body>
+</html>

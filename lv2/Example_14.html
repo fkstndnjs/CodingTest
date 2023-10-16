@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example_14</title>
+  </head>
+  <body>
+    <script>
+      document.writeln("현재 URL: " + location.href + "<br>");
+      document.writeln("현재 Hostname: " + location.hostname + "<br>");
+      document.writeln("현재 File Path: " + location.pathname + "<br>");
+
+      function openDoc() {
+        location.assign("http://www.daum.net");
+      } // 새 페이지 로딩: history 목록 추가 (history.length++)
+
+      function replaceDoc() {
+        location.replace("http://www.google.com");
+      } // 현재 페이지 교체: history.length 증가하지 않음
+    </script>
+
+    <br />
+    <button onclick="openDoc()">Open Page</button>
+    <!-- 현재 창에 새로운 Web 페이지를 로딩함 -->
+    <br />
+    <button onclick="replaceDoc()">Replace Page</button>
+    <!-- 현재 페이지를 새로운 Web 페이지로 교체함 -->
+  </body>
+</html>

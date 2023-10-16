@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example_19</title>
+  </head>
+  <body>
+    <h2>Mouse Event 처리</h2>
+    <p>아래 버튼에 마우스를 올리거나 클릭 ...</p>
+    <br />
+    <button id="btn">버튼</button>
+    <br /><br />
+    <p id="text"></p>
+
+    <script>
+      // 인라인 방식으로 이벤트 리스너를 등록
+      document.getElementById("btn").onclick = function (e) {
+        document.getElementById("text").innerHTML =
+          "버튼 클릭!<br>Event type: " +
+          e.type +
+          "<br>Event target: " +
+          e.target.localName;
+      };
+
+      // 오브젝트 프로퍼티로 이벤트 리스너를 등록
+      var btn = document.getElementById("btn");
+      btn.onmouseover = function (e) {
+        document.getElementById("text").innerHTML =
+          "버튼 위에 마우스!<br>Event type: " +
+          e.type +
+          "<br>Event target: " +
+          e.target.localName;
+      };
+
+      // addEventListener 메서드로 이벤트 리스너를 등록
+      btn.addEventListener("mouseout", function (e) {
+        document.getElementById("text").innerHTML =
+          "버튼 밖에 마우스!<br>Event type: " +
+          e.type +
+          "<br>Event target: " +
+          e.target.localName;
+      });
+    </script>
+  </body>
+</html>
