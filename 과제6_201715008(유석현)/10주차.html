@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JavaScript JSON File Processing</title>
+    <style>
+      table,
+      th,
+      td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <form>
+      <div>
+        <h2>JavaScript 기반 JSON 성적 파일 처리</h2>
+      </div>
+      <hr />
+
+      <div>
+        <h4>1) 성적 파일을 선택하시오</h4>
+        <input
+          type="file"
+          id="input_file"
+          accept="text/xml"
+          onchange="readFile()"
+        /><br />
+
+        <h4>2) 처리할 작업을 선택하시오</h4>
+        <button onclick="processJSONDoc1(event)">과목별 분석</button>
+        <button onclick="processJSONDoc2(event)">학생별 분석</button>
+        <button onclick="processJSONDoc3(event)">교사별 분석</button>
+      </div>
+      <br />
+      <hr />
+
+      <div>
+        <h4>[ 처리 결과 ]</h4>
+        <div id="output_area"></div>
+      </div>
+    </form>
+
+    <script>
+      var jsonData; // JSON 데이터 저장 변수
+
+      // XML을 JSON으로 변환
+      function xmlToJson(xml) {
+        var obj = {};
+        if (xml.nodeType == 1) {
+          // element
+          if (xml.attributes.length > 0) {
+            obj["@attributes"] = {};
+            for (var j = 0; j < xml.attributes.length; j++) {
+              var attribute = xml.attributes.item(j);
+              obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+            }
+          }
+        } else if (xml.nodeType == 3) {
+          // text
+          obj = xml.nodeValue;
+        }
+
+        if (xml.hasChildNodes()) {
+          for (var i = 0; i < xml.childNodes.length; i++) {
+            var item = xml.childNodes.item(i);
+            var nodeName = item.nodeName;
+            if (typeof obj[nodeName] == "undefined") {
+              obj[nodeName] = xmlToJson(item);
+            } else {
+              if (!(obj[nodeName] instanceof Array)) {
+                var old = obj[nodeName];
+                obj[nodeName] = [old];
+              }
+              obj[nodeName].push(xmlToJson(item));
+            }
+          }
+        }
+        return obj;
+      }
+
+      // 파일 읽기
+      function readFile() {
+        var fileObjs = document.getElementById("input_file");
+        var file = fileObjs.files[0];
+        if (file) {
+          var fr = new FileReader();
+
+          fr.readAsText(file, "utf-8");
+          fr.onload = () => {
+            var parser = new DOMParser();
+            var xml = parser.parseFromString(fr.result, "text/xml");
+            jsonData = xmlToJson(xml);
+          };
+        }
+      }
+
+      // 과목별 분석 함수
+      function processJSONDoc1(event) {
+        event.preventDefault();
+
+        // JSON 객체에서 학생, 교사, 과목 정보 추출
+        let students = jsonData.test_db.student_table.student;
+        let teachers = jsonData.test_db.teacher_table.teacher;
+        let subjects = jsonData.test_db.subject_table.subject;
+
+        // 과목별 분석을 위한 객체 초기화
+        let subjectAnalysis = {};
+
+        subjects.forEach((subject) => {
+          let subjectId = subject["@attributes"].id;
+          let subjectTitle = subject.title["#text"]; // 과목명 추출
+          let scoreTotal = 0;
+          let studentCount = 0;
+
+          students.forEach((student) => {
+            let attends =
+              student.attend instanceof Array
+                ? student.attend
+                : [student.attend];
+            attends.forEach((attendance) => {
+              if (attendance["@attributes"].subj === subjectId) {
+                scoreTotal += parseInt(attendance["@attributes"].score);
+                studentCount++;
+              }
+            });
+          });
+
+          let avgScore =
+            studentCount > 0 ? (scoreTotal / studentCount).toFixed(2) : "N/A";
+          let teacherId = subject.lecture["@attributes"].by;
+          let teacher = teachers.find((t) => t["@attributes"].id === teacherId);
+          let teacherName = teacher ? teacher.name["#text"] : "정보 없음"; // 교사 이름 추출
+
+          subjectAnalysis[subjectId] = {
+            count: studentCount,
+            avg: avgScore,
+            title: subjectTitle,
+            teacherName: teacherName,
+          };
+        });
+
+        // 테이블 생성
+        let innerHtml = `<table style="width:100%">
+    <tr>
+      <th>과목ID</th>
+      <th>과목명</th>
+      <th>담당교사</th>
+      <th>수강생수</th>
+      <th>과목평균</th>
+    </tr>`;
+
+        for (let subjectId in subjectAnalysis) {
+          innerHtml += `<tr>
+      <td>${subjectId}</td>
+      <td>${subjectAnalysis[subjectId].title}</td>
+      <td>${subjectAnalysis[subjectId].teacherName}</td>
+      <td>${subjectAnalysis[subjectId].count}</td>
+      <td>${subjectAnalysis[subjectId].avg}</td>
+    </tr>`;
+        }
+
+        innerHtml += `</table>`;
+        document.getElementById("output_area").innerHTML = innerHtml;
+      }
+
+      // 학생별 분석 함수
+      function processJSONDoc2(event) {
+        event.preventDefault();
+
+        // JSON 객체에서 학생과 과목 정보 추출
+        let students = jsonData.test_db.student_table.student;
+        let subjects = jsonData.test_db.subject_table.subject;
+
+        // 과목 ID를 키로 하는 과목명 사전 생성
+        let subjectTitles = {};
+        subjects.forEach((subject) => {
+          subjectTitles[subject["@attributes"].id] = subject.title["#text"]; // 과목명 추출
+        });
+
+        // 학생별 분석을 위한 객체 초기화
+        let studentAnalysis = {};
+
+        students.forEach((student) => {
+          let attends =
+            student.attend instanceof Array ? student.attend : [student.attend];
+          let totalScore = attends.reduce(
+            (acc, attend) => acc + parseInt(attend["@attributes"].score),
+            0
+          );
+          let subjectList = attends
+            .map((attend) => subjectTitles[attend["@attributes"].subj])
+            .join(", ");
+          let averageScore =
+            attends.length > 0
+              ? (totalScore / attends.length).toFixed(2)
+              : "N/A";
+
+          studentAnalysis[student["@attributes"].id] = {
+            name: student.name["#text"], // 학생 이름 추출
+            subjectList: subjectList,
+            subjectCount: attends.length,
+            averageScore: averageScore,
+          };
+        });
+
+        // 테이블 생성
+        let innerHtml = `<table style="width:100%">
+    <tr>
+      <th>학생ID</th>
+      <th>이름</th>
+      <th>과목목록</th>
+      <th>과목수</th>
+      <th>전체평균</th>
+    </tr>`;
+
+        for (let studentId in studentAnalysis) {
+          innerHtml += `<tr>
+      <td>${studentId}</td>
+      <td>${studentAnalysis[studentId].name}</td>
+      <td>${studentAnalysis[studentId].subjectList}</td>
+      <td>${studentAnalysis[studentId].subjectCount}</td>
+      <td>${studentAnalysis[studentId].averageScore}</td>
+    </tr>`;
+        }
+
+        innerHtml += `</table>`;
+        document.getElementById("output_area").innerHTML = innerHtml;
+      }
+
+      // 교사별 분석 함수
+      function processJSONDoc3(event) {
+        event.preventDefault();
+
+        // JSON 객체에서 교사와 과목 정보 추출
+        let teachers = jsonData.test_db.teacher_table.teacher;
+        let subjects = jsonData.test_db.subject_table.subject;
+
+        // 교사별 과목 목록 및 과목 수 계산
+        let teacherSubjects = {};
+        subjects.forEach((subject) => {
+          let teacherId = subject.lecture["@attributes"].by;
+          let subjectName = subject.title["#text"];
+          if (!teacherSubjects[teacherId]) {
+            teacherSubjects[teacherId] = [];
+          }
+          teacherSubjects[teacherId].push(subjectName);
+        });
+
+        // 교사 정보에 과목 목록과 과목 수 추가
+        let teacherInfo = {};
+        teachers.forEach((teacher) => {
+          let teacherId = teacher["@attributes"].id;
+          teacherInfo[teacherId] = {
+            name: teacher.name["#text"], // 교사 이름 추출
+            class: teacher.class["#text"], // 담당 학급 추출
+            subjectList: teacherSubjects[teacherId]
+              ? teacherSubjects[teacherId].join(" ")
+              : "담당 과목 없음", // 쉼표 제거
+            subjectCount: teacherSubjects[teacherId]
+              ? teacherSubjects[teacherId].length
+              : 0,
+          };
+        });
+
+        // 테이블 생성
+        let innerHtml = `<table style="width:100%">
+    <tr>
+      <th>교사ID</th>
+      <th>이름</th>
+      <th>담당학급</th>
+      <th>과목목록</th>
+      <th>과목수</th>
+    </tr>`;
+
+        for (let teacherId in teacherInfo) {
+          innerHtml += `<tr>
+      <td>${teacherId}</td>
+      <td>${teacherInfo[teacherId].name}</td>
+      <td>${teacherInfo[teacherId].class}</td>
+      <td>${teacherInfo[teacherId].subjectList}</td>
+      <td>${teacherInfo[teacherId].subjectCount}</td>
+    </tr>`;
+        }
+
+        innerHtml += `</table>`;
+        document.getElementById("output_area").innerHTML = innerHtml;
+      }
+    </script>
+  </body>
+</html>
