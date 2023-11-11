@@ -4,7 +4,6 @@ def solution(k, tangerine):
     answer = 0
     
     count = dict(Counter(tangerine))
-    
     sortedCount = sorted(count.items(), key=lambda x:x[1])
     count=1
     
